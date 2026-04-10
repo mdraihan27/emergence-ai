@@ -11,8 +11,14 @@ This workspace contains two separate Next.js 14 PWAs and a shared component pack
 ## Run
 
 ```bash
-npm install
+cd clients
+npm run install:user
+npm run install:responder
+
+# Terminal 1
 npm run dev:user
+
+# Terminal 2
 npm run dev:responder
 ```
 
