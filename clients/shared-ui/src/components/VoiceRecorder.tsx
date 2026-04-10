@@ -25,7 +25,7 @@ export function VoiceRecorder({ onAudioReady, disabled = false }: VoiceRecorderP
     setError(null);
 
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      setError("এই ডিভাইসে ভয়েস রেকর্ডিং সাপোর্ট নেই।");
+      setError("Voice recording is not supported on this device.");
       return;
     }
 
@@ -54,7 +54,7 @@ export function VoiceRecorder({ onAudioReady, disabled = false }: VoiceRecorderP
       mediaRecorderRef.current = recorder;
       setIsRecording(true);
     } catch {
-      setError("মাইক্রোফোন অ্যাক্সেস পাওয়া যায়নি।");
+      setError("Microphone access was not granted.");
     }
   };
 
@@ -77,7 +77,7 @@ export function VoiceRecorder({ onAudioReady, disabled = false }: VoiceRecorderP
             : "bg-[#B4D3D9] text-[#20424d] hover:bg-[#a4c7ce]"
         } disabled:cursor-not-allowed disabled:opacity-60`}
       >
-        {isRecording ? "রেকর্ডিং বন্ধ করুন" : "ভয়েস রেকর্ড করুন"}
+        {isRecording ? "Stop Recording" : "Record Voice"}
       </button>
       {error ? <p className="text-xs text-red-600">{error}</p> : null}
     </div>

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { AlertCard } from "@shared-ui";
 
 import type { IncidentAlert } from "@/lib/api";
-import { toggleAvailability } from "@/lib/api";
+import { logoutResponder, toggleAvailability } from "@/lib/api";
 import { acceptAlert, addPendingAlert, getPendingAlerts, rejectAlert } from "@/lib/alerts";
 import { clearResponderAuth, getResponderAuth, setResponderAuth, type ResponderAuth } from "@/lib/auth";
 import { useResponderSocket } from "@/hooks/useResponderSocket";
@@ -71,7 +71,15 @@ export default function DashboardPage() {
     router.push(`/incidents/${incident.id}`);
   };
 
-  const logout = () => {
+  const logout = async () => {
+    if (auth) {
+      try {
+        await logoutResponder(auth.token);
+      } catch {
+        // Continue logout locally even if network call fails.
+      }
+    }
+
     clearResponderAuth();
     router.push("/login");
   };

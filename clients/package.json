@@ -4,10 +4,10 @@
   "scripts": {
     "install:user": "npm --prefix user-app install",
     "install:responder": "npm --prefix responder-app install",
-    "dev:user": "npm --prefix user-app run dev",
-    "dev:responder": "npm --prefix responder-app run dev",
-    "build:user": "npm --prefix user-app run build",
-    "build:responder": "npm --prefix responder-app run build",
+    "dev:user": "node init && npm --prefix user-app run dev",
+    "dev:responder": "node init && npm --prefix responder-app run dev",
+    "build:user": "node init && npm --prefix user-app run build",
+    "build:responder": "node init && npm --prefix responder-app run build",
     "lint:user": "npm --prefix user-app run lint",
     "lint:responder": "npm --prefix responder-app run lint"
   }

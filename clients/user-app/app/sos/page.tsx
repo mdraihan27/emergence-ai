@@ -25,7 +25,7 @@ export default function SosPage() {
 
   const requestGps = () => {
     if (!navigator.geolocation) {
-      setError("এই ডিভাইসে GPS পাওয়া যাচ্ছে না।");
+      setError("GPS is not available on this device.");
       return;
     }
 
@@ -36,7 +36,7 @@ export default function SosPage() {
         setLng(position.coords.longitude.toFixed(6));
       },
       () => {
-        setError("GPS লোকেশন আনা যায়নি। অনুমতি দিন এবং আবার চেষ্টা করুন।");
+        setError("Could not get GPS location. Grant permission and try again.");
       }
     );
   };
@@ -64,7 +64,7 @@ export default function SosPage() {
       const createdIncident = await sendSos(payload);
       setIncident(createdIncident);
     } catch {
-      setError("SOS পাঠানো যায়নি। অনুগ্রহ করে পুনরায় চেষ্টা করুন।");
+      setError("SOS could not be sent. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -73,8 +73,8 @@ export default function SosPage() {
   return (
     <div className="mx-auto w-full max-w-3xl space-y-4">
       <header className="rounded-3xl bg-white/70 p-5 shadow-soft">
-        <h1 className="text-2xl font-bold text-[#3f3558]">SOS পাঠান</h1>
-        <p className="mt-2 text-sm text-[#685d84]">ইমার্জেন্সির ধরন, লোকেশন, এবং অতিরিক্ত তথ্য পাঠান।</p>
+        <h1 className="text-2xl font-bold text-[#3f3558]">Send SOS</h1>
+        <p className="mt-2 text-sm text-[#685d84]">Share emergency type, location, and extra details.</p>
       </header>
 
       <form onSubmit={handleSubmit} className="space-y-4 rounded-3xl bg-white/80 p-5 shadow-soft">
@@ -99,14 +99,14 @@ export default function SosPage() {
               onClick={requestGps}
               className="h-10 rounded-xl bg-[#B4D3D9] px-4 text-sm font-medium text-[#264b56]"
             >
-              GPS লোকেশন নিন
+              Get GPS Location
             </button>
             <button
               type="button"
               onClick={() => setUseManualPin((prev) => !prev)}
               className="h-10 rounded-xl bg-[#BDA6CE] px-4 text-sm font-medium text-[#3d3359]"
             >
-              {useManualPin ? "GPS-এ ফিরুন" : "Map Pin (ম্যানুয়াল)"}
+              {useManualPin ? "Switch Back to GPS" : "Map Pin (Manual)"}
             </button>
           </div>
 
@@ -133,7 +133,7 @@ export default function SosPage() {
           <input
             value={manualLocation}
             onChange={(event) => setManualLocation(event.target.value)}
-            placeholder="যেমন: Dhanmondi 27, Road 10"
+            placeholder="Example: Dhanmondi 27, Road 10"
             className="h-11 w-full rounded-xl border border-[#d8cae5] bg-white px-3 text-sm outline-none"
           />
         </label>
@@ -143,7 +143,7 @@ export default function SosPage() {
           disabled={!canSubmit}
           className="h-11 w-full rounded-xl bg-[#9B8EC7] text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {submitting ? "পাঠানো হচ্ছে..." : "Send SOS"}
+          {submitting ? "Sending..." : "Send SOS"}
         </button>
 
         {error ? <p className="text-sm text-red-600">{error}</p> : null}

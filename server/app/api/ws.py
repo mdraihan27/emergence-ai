@@ -273,12 +273,17 @@ async def ai_chat_channel(
                     },
                 )
 
+            primary_responder = assignments[0] if assignments else None
+
             await websocket_hub.send_to_session(
                 session_id,
                 {
                     "event": "escalation",
+                    "call_999": True,
+                    "connect_to_responder_chat": True,
                     "incident": incident,
                     "assigned_count": len(assignments),
+                    "assigned_responder": primary_responder,
                 },
             )
     except WebSocketDisconnect:

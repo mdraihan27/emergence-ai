@@ -4,7 +4,7 @@ from app.models.responder import ResponderOut
 
 
 class ResponderLoginRequest(BaseModel):
-    id: str = Field(..., min_length=1)
+    phone: str = Field(..., min_length=3)
     otp: str = Field(..., min_length=4)
 
 

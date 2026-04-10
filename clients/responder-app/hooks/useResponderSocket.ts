@@ -44,6 +44,22 @@ export function useResponderSocket({ responderId, token, onIncident }: UseRespon
 
         if (payload.event === "incident_alert" && payload.incident) {
           onIncident(payload.incident);
+
+          if (typeof Notification !== "undefined") {
+            if (Notification.permission === "granted") {
+              new Notification("New Emergency Alert", {
+                body: `${payload.incident.type.toUpperCase()} | Severity ${payload.incident.severity}`,
+              });
+            } else if (Notification.permission === "default") {
+              Notification.requestPermission().then((permission) => {
+                if (permission === "granted") {
+                  new Notification("New Emergency Alert", {
+                    body: `${payload.incident?.type.toUpperCase()} | Severity ${payload.incident?.severity}`,
+                  });
+                }
+              });
+            }
+          }
         }
       } catch {
         // ignore malformed websocket payloads

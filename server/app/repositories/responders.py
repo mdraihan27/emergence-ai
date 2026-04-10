@@ -26,6 +26,10 @@ class ResponderRepository:
         document = await self.collection.find_one({"_id": to_object_id(responder_id)})
         return serialize_document(document)
 
+    async def get_by_phone(self, phone: str) -> dict | None:
+        document = await self.collection.find_one({"phone": phone})
+        return serialize_document(document)
+
     async def update(self, responder_id: str, payload: ResponderUpdate) -> dict | None:
         updates = payload.model_dump(exclude_none=True)
         if not updates:

@@ -1,4 +1,5 @@
-from fastapi import Depends, Header, HTTPException, Request, status
+from fastapi import Depends, Header, HTTPException, status
+from starlette.requests import HTTPConnection
 
 from app.core.config import get_settings
 from app.core.security import decode_access_token
@@ -13,40 +14,40 @@ from app.services.transcription import TranscriptionService
 from app.services.websocket_manager import WebSocketHub
 
 
-def get_responder_repository(request: Request) -> ResponderRepository:
-    return request.app.state.responder_repository
+def get_responder_repository(connection: HTTPConnection) -> ResponderRepository:
+    return connection.app.state.responder_repository
 
 
-def get_session_repository(request: Request) -> SessionRepository:
-    return request.app.state.session_repository
+def get_session_repository(connection: HTTPConnection) -> SessionRepository:
+    return connection.app.state.session_repository
 
 
-def get_incident_repository(request: Request) -> IncidentRepository:
-    return request.app.state.incident_repository
+def get_incident_repository(connection: HTTPConnection) -> IncidentRepository:
+    return connection.app.state.incident_repository
 
 
-def get_message_repository(request: Request) -> MessageRepository:
-    return request.app.state.message_repository
+def get_message_repository(connection: HTTPConnection) -> MessageRepository:
+    return connection.app.state.message_repository
 
 
-def get_dispatcher_service(request: Request) -> DispatcherService:
-    return request.app.state.dispatcher_service
+def get_dispatcher_service(connection: HTTPConnection) -> DispatcherService:
+    return connection.app.state.dispatcher_service
 
 
-def get_triage_service(request: Request) -> AITriageService:
-    return request.app.state.triage_service
+def get_triage_service(connection: HTTPConnection) -> AITriageService:
+    return connection.app.state.triage_service
 
 
-def get_transcription_service(request: Request) -> TranscriptionService:
-    return request.app.state.transcription_service
+def get_transcription_service(connection: HTTPConnection) -> TranscriptionService:
+    return connection.app.state.transcription_service
 
 
-def get_websocket_hub(request: Request) -> WebSocketHub:
-    return request.app.state.websocket_hub
+def get_websocket_hub(connection: HTTPConnection) -> WebSocketHub:
+    return connection.app.state.websocket_hub
 
 
-def get_priority_queue(request: Request) -> IncidentPriorityQueue:
-    return request.app.state.priority_queue
+def get_priority_queue(connection: HTTPConnection) -> IncidentPriorityQueue:
+    return connection.app.state.priority_queue
 
 
 def require_admin_key(

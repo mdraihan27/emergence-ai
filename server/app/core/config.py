@@ -1,7 +1,6 @@
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -18,7 +17,7 @@ class Settings(BaseSettings):
     debug: bool = False
     host: str = "0.0.0.0"
     port: int = 8000
-    allowed_origins: list[str] = Field(default_factory=lambda: ["*"])
+    allowed_origins: str = "*"
 
     mongodb_uri: str = "mongodb://localhost:27017"
     mongodb_db_name: str = "dhaka_emergency"
@@ -39,12 +38,12 @@ class Settings(BaseSettings):
     max_dispatch_responders: int = 5
     severity_escalation_threshold: int = 4
 
-    @field_validator("allowed_origins", mode="before")
-    @classmethod
-    def parse_allowed_origins(cls, value: str | list[str]) -> list[str]:
-        if isinstance(value, str):
-            return [item.strip() for item in value.split(",") if item.strip()]
-        return value
+    @property
+    def allowed_origins_list(self) -> list[str]:
+        value = self.allowed_origins.strip()
+        if not value:
+            return ["*"]
+        return [item.strip() for item in value.split(",") if item.strip()]
 
 
 @lru_cache(maxsize=1)
