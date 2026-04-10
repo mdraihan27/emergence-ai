@@ -38,7 +38,7 @@ export function ChatUI({
   messages,
   onSend,
   typing = false,
-  inputPlaceholder = "বার্তা লিখুন...",
+  inputPlaceholder = "Type a message...",
   disabled = false,
   footerAddon,
 }: ChatUIProps) {
@@ -85,7 +85,7 @@ export function ChatUI({
             <span className="h-2 w-2 animate-bounce rounded-full bg-[#9B8EC7]" />
             <span className="h-2 w-2 animate-bounce rounded-full bg-[#BDA6CE] [animation-delay:100ms]" />
             <span className="h-2 w-2 animate-bounce rounded-full bg-[#B4D3D9] [animation-delay:200ms]" />
-            <span className="ml-1">টাইপ করছে...</span>
+            <span className="ml-1">Typing...</span>
           </div>
         ) : null}
 
@@ -106,7 +106,7 @@ export function ChatUI({
             disabled={!canSend}
             className="h-11 rounded-xl bg-[#9B8EC7] px-4 text-sm font-medium text-white transition hover:bg-[#8c7fba] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            পাঠান
+            Send
           </button>
         </div>
         {footerAddon ? <div className="mt-2">{footerAddon}</div> : null}

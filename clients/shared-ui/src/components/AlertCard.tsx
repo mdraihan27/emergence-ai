@@ -22,15 +22,15 @@ type AlertCardProps = Readonly<{
 
 function severityLabel(severity: number): string {
   if (severity >= 5) {
-    return "চরম";
+    return "Critical";
   }
   if (severity >= 4) {
-    return "উচ্চ";
+    return "High";
   }
   if (severity >= 3) {
-    return "মাঝারি";
+    return "Medium";
   }
-  return "কম";
+  return "Low";
 }
 
 export function AlertCard({ incident, onAccept, onReject, compact = false }: AlertCardProps) {

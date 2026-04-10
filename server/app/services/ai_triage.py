@@ -14,10 +14,12 @@ except Exception:  # pragma: no cover - optional dependency behavior
 
 
 SYSTEM_PROMPT = (
-    "You are an emergency AI assistant for Bangladesh. Always respond in Bangla. "
+    "You are an emergency AI assistant for Bangladesh. Always respond in English. "
     "Classify emergency type and severity (1-5). Provide calm, short guidance. "
     "Escalate if needed."
 )
+
+GEMINI_REQUEST_TIMEOUT_SECONDS = 10
 
 
 class AITriageService:
@@ -35,7 +37,7 @@ class AITriageService:
             return TriageResult(
                 type=EmergencyType.other,
                 severity=1,
-                response_bn="দয়া করে সমস্যাটি একটু বিস্তারিত লিখুন, আমি পাশে আছি।",
+                response_bn="Please describe the problem in a bit more detail. I am here to help.",
                 should_escalate=False,
             )
 
@@ -43,11 +45,17 @@ class AITriageService:
             return self._heuristic_triage(user_message, category)
 
         try:
-            return await asyncio.to_thread(
-                self._triage_with_gemini,
-                user_message,
-                category,
+            return await asyncio.wait_for(
+                asyncio.to_thread(
+                    self._triage_with_gemini,
+                    user_message,
+                    category,
+                ),
+                timeout=GEMINI_REQUEST_TIMEOUT_SECONDS,
             )
+        except TimeoutError:
+            self.logger.warning("Gemini triage timed out, using heuristic fallback")
+            return self._heuristic_triage(user_message, category)
         except Exception:
             self.logger.exception("Gemini triage failed, using heuristic fallback")
             return self._heuristic_triage(user_message, category)
@@ -120,7 +128,7 @@ class AITriageService:
 
         if severity == 3 and any(
             phrase in user_message.lower()
-            for phrase in ["following", "follow", "help", "blood", "রক্ত", "পিছু নিচ্ছে"]
+            for phrase in ["following", "follow", "help", "blood", "bleeding", "being followed"]
         ):
             should_escalate = True
 
@@ -137,19 +145,19 @@ class AITriageService:
 
         text = user_message.lower()
 
-        if any(word in text for word in ["আগুন", "fire", "smoke", "burn", "ধোঁয়া"]):
+        if any(word in text for word in ["fire", "smoke", "burn", "flame"]):
             return EmergencyType.fire.value
         if any(
             word in text
-            for word in ["চুরি", "stolen", "ছিনতাই", "follow", "attack", "crime", "পুলিশ"]
+            for word in ["stolen", "robbery", "mugging", "follow", "attack", "crime", "police"]
         ):
             return EmergencyType.crime.value
         if any(
             word in text
-            for word in ["heart", "bleeding", "medical", "doctor", "injury", "অসুস্থ", "রক্ত"]
+            for word in ["heart", "bleeding", "medical", "doctor", "injury", "sick", "unwell"]
         ):
             return EmergencyType.medical.value
-        if any(word in text for word in ["depression", "panic", "suicide", "anxiety", "মানসিক"]):
+        if any(word in text for word in ["depression", "panic", "suicide", "anxiety", "mental"]):
             return EmergencyType.mental_health.value
         return EmergencyType.other.value
 
@@ -157,13 +165,13 @@ class AITriageService:
     def _infer_severity_from_text(user_message: str, emergency_type: str) -> int:
         text = user_message.lower()
 
-        if any(word in text for word in ["immediate", "dying", "unconscious", "explosion", "জরুরি"]):
+        if any(word in text for word in ["immediate", "dying", "unconscious", "explosion", "urgent"]):
             return 5
-        if any(word in text for word in ["following me", "fire", "bleeding", "stuck", "help now", "পিছু নিচ্ছে"]):
+        if any(word in text for word in ["following me", "being followed", "fire", "bleeding", "stuck", "help now"]):
             return 4
-        if any(word in text for word in ["injury", "threat", "panic", "বিপদ"]):
+        if any(word in text for word in ["injury", "threat", "panic", "danger"]):
             return 3
-        if any(word in text for word in ["lost", "stolen phone", "চুরি হয়েছে"]):
+        if any(word in text for word in ["lost", "stolen", "stolen phone"]):
             return 1
 
         defaults = {
@@ -179,25 +187,25 @@ class AITriageService:
     def _default_guidance_bn(emergency_type: str, severity: int) -> str:
         if emergency_type == EmergencyType.fire.value:
             return (
-                "আপনি নিরাপদ দূরত্বে যান, গ্যাস/বিদ্যুৎ বন্ধ করার চেষ্টা করুন, "
-                "এবং আশেপাশের মানুষকে সতর্ক করুন।"
+                "Move to a safe distance, turn off gas/electricity if possible, "
+                "and alert nearby people."
             )
         if emergency_type == EmergencyType.medical.value:
             return (
-                "রোগীকে নিরাপদ ভঙ্গিতে রাখুন, শ্বাসপ্রশ্বাস দেখুন, "
-                "প্রয়োজনে কাছের চিকিৎসা সহায়তা দ্রুত নিন।"
+                "Keep the person in a safe position, check breathing, "
+                "and seek nearby medical help immediately if needed."
             )
         if emergency_type == EmergencyType.crime.value and severity >= 4:
             return (
-                "নিরাপদ স্থানে যান, আশেপাশের লোকজনকে জানান, "
-                "এবং আপনার অবস্থান শেয়ার করুন।"
+                "Move to a safe location, alert people around you, "
+                "and share your location with trusted contacts."
             )
         if emergency_type == EmergencyType.mental_health.value:
             return (
-                "আপনি একা নন। ধীরে শ্বাস নিন, নিরাপদ কারও সাথে থাকুন, "
-                "এবং প্রয়োজন হলে জরুরি সহায়তা নিন।"
+                "You are not alone. Take slow breaths, stay with someone you trust, "
+                "and seek urgent help if needed."
             )
-        return "আমি আপনার তথ্য নোট করেছি। অনুগ্রহ করে শান্ত থাকুন, আমি সাহায্য করছি।"
+        return "I have noted your report. Please stay calm; help is being arranged."
 
     @staticmethod
     def _build_prompt(user_message: str, category: str | None = None) -> str:
@@ -212,12 +220,12 @@ Return only valid JSON in this exact format:
 {{
   "type": "crime|medical|fire|mental_health|other",
   "severity": 1,
-  "response_bn": "Bangla response only",
+    "response_bn": "English response only",
   "should_escalate": true
 }}
 
 Rules:
-- Bangla text only in response_bn
+- English text only in response_bn
 - severity must be integer from 1 to 5
 - if severity >= 4, should_escalate must be true
 """.strip()

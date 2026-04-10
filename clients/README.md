@@ -1,5 +1,16 @@
 # Emergency Response Frontend
 
+## What This Frontend Is For
+
+These PWAs are built to support Dhaka 999 emergency response flow.
+The user app helps people report incidents quickly, while the responder app helps teams act on real-time alerts and coordinate response.
+
+## How It Helps
+
+- User PWA: SOS, AI-guided support, voice-enabled help requests.
+- Responder PWA: live alerts, availability control, and incident chat.
+- Mobile-first PWA delivery for fast access during emergencies.
+
 This workspace contains two separate Next.js 14 PWAs and a shared component package.
 
 ## Apps

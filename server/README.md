@@ -1,5 +1,17 @@
 # Dhaka Emergency Response Backend (FastAPI)
 
+## What This Backend Is For
+
+This backend is built to support emergency response handling for Dhaka 999-related incidents.
+It centralizes incident intake, AI triage, responder dispatch, and real-time communication.
+
+## How It Helps
+
+- Prioritizes incidents by severity and dispatch score.
+- Notifies nearby available responders in real time.
+- Supports AI-assisted triage and Bangla guidance for users.
+- Provides a shared incident data pipeline for operations visibility.
+
 Production-oriented backend for an emergency response platform in Dhaka, Bangladesh.
 
 ## Tech Stack

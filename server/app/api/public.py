@@ -34,6 +34,24 @@ async def create_session(
     return await repository.create()
 
 
+@router.get("/session/{session_id}")
+async def get_session(
+    session_id: str,
+    repository: Annotated[SessionRepository, Depends(get_session_repository)],
+) -> dict:
+    session = await repository.get_by_session_id(session_id)
+    if session is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Session not found",
+        )
+
+    return {
+        "session_id": session["session_id"],
+        "created_at": session["created_at"],
+    }
+
+
 @router.post("/sos", response_model=IncidentOut, status_code=status.HTTP_201_CREATED)
 async def create_sos(
     payload: SosRequest,

@@ -35,13 +35,13 @@ export type IncidentAlert = {
   created_at?: string;
 };
 
-export async function loginResponder(id: string, otp: string): Promise<ResponderLoginResponse> {
+export async function loginResponder(phone: string, otp: string): Promise<ResponderLoginResponse> {
   const response = await fetch(`${BACKEND_HTTP_BASE}/responder/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ id, otp }),
+    body: JSON.stringify({ phone, otp }),
   });
 
   if (!response.ok) {
@@ -66,6 +66,19 @@ export async function toggleAvailability(token: string, isAvailable: boolean): P
   }
 
   return response.json();
+}
+
+export async function logoutResponder(token: string): Promise<void> {
+  const response = await fetch(`${BACKEND_HTTP_BASE}/responder/logout`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Responder logout failed");
+  }
 }
 
 export function responderWsUrl(responderId: string, token: string): string {

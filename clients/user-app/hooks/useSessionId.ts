@@ -36,7 +36,7 @@ export function useSessionId() {
         }
       } catch {
         if (mounted) {
-          setError("সেশন তৈরি করা যায়নি। আবার চেষ্টা করুন।");
+          setError("Could not create a session. Please try again.");
         }
       } finally {
         if (mounted) {

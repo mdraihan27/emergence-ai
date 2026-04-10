@@ -12,13 +12,52 @@ type TriagePayload = {
   should_escalate: boolean;
 };
 
+type EscalationIncident = {
+  id: string;
+  severity?: number;
+  status?: string;
+  assigned_responders?: Array<{
+    responder_id: string;
+    responder_name?: string;
+    responder_type?: string;
+  }>;
+};
+
+type EscalationPayload = {
+  event?: string;
+  detail?: string;
+  triage?: TriagePayload;
+  incident?: EscalationIncident;
+  call_999?: boolean;
+  connect_to_responder_chat?: boolean;
+  assigned_responder?: {
+    responder_id: string;
+    responder_name?: string;
+    responder_type?: string;
+    distance_km?: number;
+  };
+};
+
+type UseChatSocketOptions = {
+  onEscalation?: (incident: EscalationIncident) => void;
+};
+
 const createId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
-export function useChatSocket(sessionId: string | null, category: string) {
+export function useChatSocket(
+  sessionId: string | null,
+  category: string,
+  options?: UseChatSocketOptions
+) {
   const socketRef = useRef<WebSocket | null>(null);
+  const onEscalationRef = useRef<UseChatSocketOptions["onEscalation"]>(undefined);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [typing, setTyping] = useState(false);
   const [connected, setConnected] = useState(false);
+
+  useEffect(() => {
+    onEscalationRef.current = options?.onEscalation;
+  }, [options?.onEscalation]);
 
   const wsUrl = useMemo(() => {
     if (!sessionId) {
@@ -41,11 +80,7 @@ export function useChatSocket(sessionId: string | null, category: string) {
 
     socket.onmessage = (event) => {
       try {
-        const payload = JSON.parse(event.data) as {
-          event?: string;
-          detail?: string;
-          triage?: TriagePayload;
-        };
+        const payload = JSON.parse(event.data) as EscalationPayload;
 
         if (payload.event === "connected") {
           setMessages((previous) => [
@@ -53,7 +88,7 @@ export function useChatSocket(sessionId: string | null, category: string) {
             {
               id: createId(),
               sender: "system",
-              text: "চ্যাট সংযোগ সম্পন্ন হয়েছে।",
+              text: "Chat connection established.",
             },
           ]);
           return;
@@ -73,14 +108,26 @@ export function useChatSocket(sessionId: string | null, category: string) {
         }
 
         if (payload.event === "escalation") {
+          setTyping(false);
+          const responderName = payload.assigned_responder?.responder_name;
+          let escalationText = "High risk detected. You are being connected to nearby responders now.";
+          if (payload.call_999) {
+            escalationText = responderName
+              ? `999 escalation triggered. Connecting you with nearby responder ${responderName}.`
+              : "999 escalation triggered. Connecting you with a nearby available responder now.";
+          }
+
           setMessages((previous) => [
             ...previous,
             {
               id: createId(),
               sender: "system",
-              text: "উচ্চ ঝুঁকি শনাক্ত হয়েছে, রেসপন্ডারদের কাছে অ্যালার্ট পাঠানো হয়েছে।",
+              text: escalationText,
             },
           ]);
+          if (payload.incident) {
+            onEscalationRef.current?.(payload.incident);
+          }
           return;
         }
 
@@ -91,7 +138,7 @@ export function useChatSocket(sessionId: string | null, category: string) {
             {
               id: createId(),
               sender: "system",
-              text: payload.detail ?? "কোনও ত্রুটি হয়েছে।",
+              text: payload.detail ?? "An error occurred.",
             },
           ]);
         }
@@ -118,7 +165,7 @@ export function useChatSocket(sessionId: string | null, category: string) {
   const sendMessage = useCallback(
     async (text: string) => {
       const socket = socketRef.current;
-      if (!socket || socket.readyState !== WebSocket.OPEN) {
+      if (socket?.readyState !== WebSocket.OPEN) {
         throw new Error("WebSocket is not connected");
       }
 

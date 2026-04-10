@@ -1,5 +1,17 @@
 # Emergency Response System
 
+## What This App Is For
+
+This system is designed to support emergency response operations around Dhaka 999 calls.
+It provides a digital workflow for reporting incidents, triaging urgency, and notifying the nearest available responders quickly.
+
+## How It Helps
+
+- Gives citizens a fast SOS and AI help channel from mobile web.
+- Helps responders receive real-time alerts with location and severity context.
+- Reduces manual coordination delay with automated dispatch ranking.
+- Improves situational awareness through live incident chat and status updates.
+
 Full-stack emergency response platform with:
 
 - FastAPI backend in `server/`

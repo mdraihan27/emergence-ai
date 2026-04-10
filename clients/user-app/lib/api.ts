@@ -59,6 +59,23 @@ export async function createSession(): Promise<SessionResponse> {
   return response.json();
 }
 
+export async function getSession(sessionId: string): Promise<SessionResponse | null> {
+  const response = await fetch(`${BACKEND_HTTP_BASE}/api/session/${sessionId}`, {
+    method: "GET",
+    cache: "no-store",
+  });
+
+  if (response.status === 404) {
+    return null;
+  }
+
+  if (!response.ok) {
+    throw new Error("Session lookup failed");
+  }
+
+  return response.json();
+}
+
 export async function sendSos(payload: SosPayload): Promise<IncidentResponse> {
   const response = await fetch(`${BACKEND_HTTP_BASE}/api/sos`, {
     method: "POST",

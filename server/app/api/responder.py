@@ -28,11 +28,11 @@ async def responder_login(
 ) -> dict:
     settings = get_settings()
 
-    responder = await repository.get_by_id(payload.id)
+    responder = await repository.get_by_phone(payload.phone)
     if responder is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Responder ID not found",
+            detail="Responder phone number not found",
         )
 
     if payload.otp != settings.dummy_otp:
@@ -41,12 +41,29 @@ async def responder_login(
             detail="Invalid OTP",
         )
 
-    token = create_access_token(subject=responder["id"], role="responder")
+    # Logged-in responders are treated as available by default.
+    updated_responder = await repository.set_availability(responder["id"], True)
+    if updated_responder is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Responder not found",
+        )
+
+    token = create_access_token(subject=updated_responder["id"], role="responder")
     return {
         "access_token": token,
         "token_type": "bearer",
-        "responder": responder,
+        "responder": updated_responder,
     }
+
+
+@router.post("/logout")
+async def responder_logout(
+    responder_id: Annotated[str, Depends(get_current_responder_id)],
+    repository: Annotated[ResponderRepository, Depends(get_responder_repository)],
+) -> dict:
+    await repository.set_availability(responder_id, False)
+    return {"ok": True}
 
 
 @router.patch("/availability", response_model=ResponderOut)

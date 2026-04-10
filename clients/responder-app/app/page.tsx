@@ -7,7 +7,7 @@ export default function HomePage() {
         <p className="text-sm font-semibold uppercase tracking-wide text-[#655a81]">Responder Portal</p>
         <h1 className="mt-2 text-3xl font-bold text-[#3f3558]">Emergency Responder PWA</h1>
         <p className="mt-2 text-sm text-[#665b82]">
-          লগইন করুন, availability টগল করুন, এবং রিয়েল-টাইম ইনসিডেন্ট পরিচালনা করুন।
+          Log in, toggle availability, and manage real-time incidents.
         </p>
       </header>
 
@@ -17,14 +17,14 @@ export default function HomePage() {
           className="rounded-2xl bg-[#9B8EC7] p-5 text-white shadow-soft transition hover:-translate-y-0.5"
         >
           <h2 className="text-xl font-semibold">Login</h2>
-          <p className="mt-1 text-sm text-white/85">Responder ID ও OTP দিয়ে প্রবেশ করুন।</p>
+          <p className="mt-1 text-sm text-white/85">Sign in with phone number and OTP.</p>
         </Link>
         <Link
           href="/dashboard"
           className="rounded-2xl bg-[#B4D3D9] p-5 text-[#244955] shadow-soft transition hover:-translate-y-0.5"
         >
           <h2 className="text-xl font-semibold">Dashboard</h2>
-          <p className="mt-1 text-sm text-[#244955]/80">ইনকামিং অ্যালার্ট এবং স্ট্যাটাস দেখুন।</p>
+          <p className="mt-1 text-sm text-[#244955]/80">View incoming alerts and current status.</p>
         </Link>
       </div>
     </div>
